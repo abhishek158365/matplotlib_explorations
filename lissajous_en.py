@@ -12,6 +12,14 @@ A_MIN = 1
 A_MAX = NROWS*2-1
 B_MIN = 1
 B_MAX = NROWS*2-2
+FILE_NAME="Rhodonea_animation.mp4"
+
+def P_FAMILY_X(t,a,k):
+    return a*np.sin(k*t)*np.cos(t)
+    
+def P_FAMILY_Y(t,a,k):
+    return a*np.sin(k*t)*np.sin(t)
+
 
 fig, ax = plt.subplots(nrows=NROWS, ncols=NCOLS)
 
@@ -35,13 +43,13 @@ pt=[None]*NPLOTS
 temp_t = np.linspace(-PI,PI,600)
 for axis_num,axis in en_ax:
      print(axis_num)
-     x=np.sin(a[int(axis_num/NROWS)] * temp_t + phases[axis_num%NCOLS])
-     y=np.sin(b[int(axis_num/NROWS)]*temp_t)
+     x=P_FAMILY_X(temp_t,a[int(axis_num/NROWS)],b[int(axis_num%NROWS)])
+     y=P_FAMILY_Y(temp_t,a[int(axis_num/NROWS)],b[int(axis_num%NROWS)])
      line[axis_num], = axis.plot(x,y,lw=2)
      pt[axis_num],= axis.plot(0,0,color='red', marker='o',markersize=1)
-     axis.set_xlabel(safe_div(phases[axis_num%NCOLS]))
+     axis.set_xlabel('b='+str(b[int(axis_num%NROWS)]))
      if(axis_num%NCOLS==0):
-         axis.set_ylabel('a/b='+str(a[int(axis_num/NROWS)])+"/"+str(b[int(axis_num/NROWS)]))
+         axis.set_ylabel('a='+str(a[int(axis_num/NROWS)]))
      axis.set_yticklabels([])
      axis.set_xticklabels([])
     
@@ -58,8 +66,8 @@ y=[[] for l in range(NPLOTS)]
 def animate(i):
     t=-np.pi+i*np.pi/150
     for axis_num,axis in en_ax:
-            x[axis_num].append(np.sin(a[int(axis_num/NROWS)]* t + phases[axis_num%NCOLS]))
-            y[axis_num].append(np.sin(b[int(axis_num/NROWS)]* t))
+            x[axis_num].append(P_FAMILY_X(t,a[int(axis_num/NROWS)],b[int(axis_num%NROWS)]))
+            y[axis_num].append(P_FAMILY_Y(t,a[int(axis_num/NROWS)],b[int(axis_num%NROWS)]))
             line[axis_num].set_data(x[axis_num], y[axis_num])
             pt[axis_num].set_data(x[axis_num][(len(x[axis_num])-1)],y[axis_num][(len(y[axis_num])-1)])
     return line,
@@ -68,6 +76,6 @@ ani = animation.FuncAnimation(fig, animate, init_func=init, interval=2, blit=Fal
 
 from matplotlib.animation import FFMpegWriter
 writer = FFMpegWriter(fps=60, metadata=dict(artist='Me'), bitrate=500)
-ani.save("movie.mp4", writer=writer)
+ani.save(FILE_NAME, writer=writer)
 
 plt.show()
